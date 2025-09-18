@@ -2,7 +2,7 @@ import { Calendar, Settings, ChevronLeft, ChevronRight, X, Star, Cloud, Heart, S
 import { useState, useEffect } from 'react';
 import { getUserData, calculatePhases, clearUserData } from '../utils/storage';
 import { motion } from 'motion/react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface CalendarViewProps {
   onDayClick: (day: number) => void;
@@ -51,6 +51,22 @@ export function CalendarView({ onDayClick, onNavigate }: CalendarViewProps) {
     } catch (error) {
       console.error('Error clearing data:', error);
       toast.error('Failed to clear data');
+    }
+  };
+
+  // Localized phase label and short tip for current status UI
+  const getPhaseMeta = (phaseKey: string) => {
+    switch (phaseKey) {
+      case 'menstrual':
+        return { phase: '휴식 기간', shortTip: '몸을 쉬게 하고 따뜻하게 챙겨주세요' };
+      case 'follicular':
+        return { phase: '에너지 업 기간', shortTip: '새로운 도전을 시작하기 좋은 때예요' };
+      case 'ovulation':
+        return { phase: '스파크 기간', shortTip: '활력이 최고조! 하지만 무리하지 않게' };
+      case 'luteal':
+        return { phase: '컨트롤 기간', shortTip: '컨디션 조절에 신경써주세요' };
+      default:
+        return { phase: '', shortTip: '' };
     }
   };
 
@@ -128,59 +144,80 @@ export function CalendarView({ onDayClick, onNavigate }: CalendarViewProps) {
     }
   };
 
-  // Get phase details for selected day
-  const getPhaseDetails = (day: number) => {
-    const phase = getCyclePhaseForDate(day);
-    
-    switch (phase) {
-      case 'menstrual':
-        return {
-          phase: 'Menstrual Phase',
-          description: `This is your period time. Your body is shedding the uterine lining, and hormone levels (estrogen and progesterone) are at their lowest.
-
-You might experience cramps, back pain, headaches, and fatigue. Mood swings and increased sensitivity are also common.
-
-Take it easy with gentle activities. Avoid intense exercise and cold foods. Use heating pads for comfort and get plenty of rest.
-
-Try warm teas, iron-rich foods like spinach, magnesium-rich dark chocolate, and anti-inflammatory ginger tea. Light stretching and meditation can help you feel more comfortable.`
-        };
-      case 'follicular':
-        return {
-          phase: 'Follicular Phase',
-          description: `Your estrogen levels are gradually rising as your ovaries prepare to release an egg. This is a time of renewal and growth.
-
-You'll likely feel more energetic, focused, and optimistic. Your skin condition improves, and you feel more social and confident.
-
-This is a great time for exercise and new challenges. Your body can handle more intense workouts.
-
-Focus on protein-rich foods like chicken breast, vitamin B-rich brown rice, and plenty of fresh fruits and vegetables. This is perfect for starting new projects or social activities.`
-        };
-      case 'ovulation':
-        return {
-          phase: 'Ovulation Phase',
-          description: `Estrogen peaks and LH (luteinizing hormone) surges, triggering ovulation. This is your most fertile time.
-
-Your energy and confidence are at their highest. You might notice increased libido and a slight rise in body temperature. Some women experience ovulation pain.
-
-You're at your peak performance, so engage actively in most activities, but avoid excessive stress.
-
-Eat antioxidant-rich berries, omega-3 rich salmon and nuts, and folate-rich leafy greens. This is ideal for high-intensity workouts, new projects, or important meetings.`
-        };
-      case 'luteal':
-        return {
-          phase: 'Luteal Phase',
-          description: `Progesterone levels rise, causing body temperature to increase and various physical changes. This is the PMS phase.
-
-You might experience bloating, breast tenderness, mood changes, increased appetite, and irritability. Sleep quality may decrease.
-
-Choose lighter activities over intense exercise. Reduce caffeine and sodium intake while staying well hydrated.
-
-Try magnesium-rich almonds, vitamin B6-rich bananas, serotonin-boosting turkey, and anti-inflammatory turmeric tea. Yoga, gentle walks, and reading can help calm your mind.`
-        };
-      default:
-        return { phase: '', description: '' };
-    }
+  // Format selected day into 'YYYY년 M월 D일 요일'
+  const formatSelectedDate = (day: number) => {
+    const date = new Date(today.getFullYear(), currentMonthIndex + currentMonth, day);
+    const y = date.getFullYear();
+    const m = date.getMonth() + 1;
+    const d = date.getDate();
+    const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const w = weekdays[date.getDay()];
+    return `${y}년 ${m}월 ${d}일 ${w}`;
   };
+
+  // Get phase details for selected day
+ const getPhaseDetails = (day: number) => {
+  const phase = getCyclePhaseForDate(day);
+
+  switch (phase) {
+    case 'menstrual':
+      return {
+        phase: '휴식 기간',
+        shortTip: '몸을 쉬게 하고 따뜻하게 챙겨주세요',
+        description: `몸을 비우고 회복하는 시기예요. 에스트로겐과 프로게스테론이 가장 낮아
+컨디션이 쉽게 떨어질 수 있습니다.
+
+복통이나 허리 통증, 두통, 피로감, 감정 기복이 올 수 있으니
+스스로를 잘 돌보며 푹 쉬어주세요.
+
+무리한 운동은 피하고 가벼운 스트레칭이나 명상이 좋아요.
+따뜻한 차, 철분이 풍부한 시금치, 마그네슘이 많은 다크 초콜릿,
+항염 효과가 있는 생강차로 몸을 따뜻하게 챙겨보세요.`
+      };
+    case 'follicular':
+      return {
+        phase: '에너지 업 기간',
+        shortTip: '새로운 도전을 시작하기 좋은 때예요',
+        description: `에스트로겐이 서서히 오르면서 몸이 배란을 준비하는 단계예요.
+점점 기운이 올라오고 집중력과 자신감도 함께 높아집니다.
+피부 컨디션이 좋아지고 사회적 활동도 즐겁게 느껴질 수 있어요.
+이 시기에는 강도 높은 운동이나 새로운 도전을 시작하기 좋습니다.
+단백질이 풍부한 닭가슴살, 비타민 B가 많은 현미,
+신선한 과일과 채소를 충분히 챙겨보세요.`
+      };
+    case 'ovulation':
+      return {
+        phase: '스파크 기간',
+        shortTip: '활력이 최고조! 하지만 무리하지 않게',
+        description: `에너지가 최고조에 이르고 배란이 일어나는 시기예요.
+자신감과 활력이 가장 빛나는 때라 몸도 마음도 한층 가벼워질 수 있습니다.
+
+체온이 살짝 오를 수 있으며, 일부는 배란통을 느끼기도 해요.
+임신 가능성이 높은 시기입니다. 
+활발한 활동을 즐기되 과도한 스트레스는 피해주세요.
+항산화가 풍부한 베리류, 오메가3가 많은 연어와 견과류,
+엽산이 많은 녹색 채소가 도움이 됩니다.`
+      };
+    case 'luteal':
+      return {
+        phase: '컨트롤 기간',
+        shortTip: '컨디션 조절에 신경써주세요',
+        description: `프로게스테론이 상승하면서 체온이 조금 올라가고
+몸의 변화가 많은 단계입니다. PMS가 나타나기 쉬워요.
+
+복부 팽만감, 가슴 통증, 식욕 증가, 예민함이 올 수 있으니
+컨디션을 세심하게 관리해 주세요.
+
+무리한 운동보다는 요가·가벼운 산책이 좋고,
+카페인과 나트륨 섭취는 줄이며 수분을 충분히 섭취하세요.
+
+마그네슘이 풍부한 아몬드, 비타민 B6가 많은 바나나, 항염 효과가 있는 강황차가 도움이 됩니다.`
+      };
+    default:
+      return { phase: '', shortTip: '', description: '' };
+  }
+};
+
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -198,7 +235,7 @@ Try magnesium-rich almonds, vitamin B6-rich bananas, serotonin-boosting turkey, 
   const isToday = (day: number) => {
     return currentMonth === 0 && day === currentDate;
   };
-
+ console.log('cycleInfo',cycleInfo)
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto">
@@ -220,20 +257,26 @@ Try magnesium-rich almonds, vitamin B6-rich bananas, serotonin-boosting turkey, 
           </div>
         </motion.div>
 
-        {/* Current cycle status */}
+        {/* Current cycle status - emphasize phase + short tip; Cycle Day as secondary */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
           className="bg-card border-b-4 border-foreground p-4"
         >
-          <div className="text-center">
-            <p className="text-sm font-bold text-muted-foreground">CYCLE DAY</p>
-            <p className="text-3xl font-black text-foreground">{cycleInfo.currentCycleDay}</p>
-            <p className="text-xs font-bold text-muted-foreground tracking-wide">
-              {cycleInfo.currentPhase.toUpperCase()} PHASE
-            </p>
-          </div>
+          {(() => {
+            const meta = getPhaseMeta(cycleInfo.currentPhase);
+            return (
+              <div className="text-center space-y-1">
+                <p className="text-2xl font-black text-foreground">
+                  오늘은 {today.getFullYear()}년 {String(today.getMonth() + 1).padStart(2, '0')}월 {String(today.getDate()).padStart(2, '0')}일
+                </p>
+                {meta.shortTip && (
+                  <p className="text-sm font-medium text-muted-foreground">{meta.shortTip}</p>
+                )}
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* Month navigation */}
@@ -346,19 +389,19 @@ Try magnesium-rich almonds, vitamin B6-rich bananas, serotonin-boosting turkey, 
               <div className="p-6 space-y-4">
                 <div className="flex items-center gap-4 p-4 border-4 border-foreground bg-accent">
                   <div className="w-6 h-6 bg-[#F2762E] border-2 border-foreground rounded-full"></div>
-                  <span className="text-card-foreground font-bold">Menstrual (Days 1-{userData.periodLength})</span>
+                  <span className="text-card-foreground font-bold">휴식 기간 (Days 1-{userData.periodLength})</span>
                 </div>
                 <div className="flex items-center gap-4 p-4 border-4 border-foreground bg-accent">
                   <div className="w-6 h-6 bg-[#F2AF5C] border-2 border-foreground rounded-full"></div>
-                  <span className="text-card-foreground font-bold">Follicular (Days {userData.periodLength + 1}-13)</span>
+                  <span className="text-card-foreground font-bold"> 에너지 업 기간 (Days {userData.periodLength + 1}-13)</span>
                 </div>
                 <div className="flex items-center gap-4 p-4 border-4 border-foreground bg-accent">
                   <div className="w-6 h-6 bg-[#F2CA50] border-2 border-foreground rounded-full"></div>
-                  <span className="text-card-foreground font-bold">Ovulation (Days 14-15)</span>
+                  <span className="text-card-foreground font-bold">스파크 기간 (Days 14-15)</span>
                 </div>
                 <div className="flex items-center gap-4 p-4 border-4 border-foreground bg-accent">
                   <div className="w-6 h-6 bg-[#74A65D] border-2 border-foreground rounded-full"></div>
-                  <span className="text-card-foreground font-bold">Luteal (Days 16-{userData.cycleLength})</span>
+                  <span className="text-card-foreground font-bold">컨트롤 기간 (Days 16-{userData.cycleLength})</span>
                 </div>
               </div>
             </motion.div>
@@ -373,10 +416,15 @@ Try magnesium-rich almonds, vitamin B6-rich bananas, serotonin-boosting turkey, 
             className="border-t-8 border-foreground"
           >
             <div className="bg-accent p-6 border-b-4 border-foreground">
-              <h3 className="font-black text-foreground text-xl tracking-wide">DAY {selectedDay} INFO</h3>
-              <p className="text-sm text-muted-foreground font-bold tracking-wide">
-                {getPhaseDetails(selectedDay).phase.toUpperCase()}
+              <h3 className="font-black text-foreground text-xl tracking-wide">{formatSelectedDate(selectedDay as number)}</h3>
+              <p className="text-lg text-foreground font-black tracking-wide">
+                {getPhaseDetails(selectedDay).phase}
               </p>
+              {getPhaseDetails(selectedDay).shortTip && (
+                <p className="text-xs text-muted-foreground font-medium tracking-wide mt-1">
+                  {getPhaseDetails(selectedDay).shortTip}
+                </p>
+              )}
             </div>
             
             <div className="bg-card p-8 border-b-4 border-foreground">

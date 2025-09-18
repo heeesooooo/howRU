@@ -86,10 +86,10 @@ export const calculatePhases = (lastPeriodDate: string, cycleLength: number, per
   
   // Phase definitions
   const phases = {
-    menstrual: { start: 1, end: periodLength, color: '#F2762E', name: 'Menstrual' },
-    follicular: { start: periodLength + 1, end: 13, color: '#F2AF5C', name: 'Follicular' },
-    ovulation: { start: 14, end: 15, color: '#F2CA50', name: 'Ovulation' },
-    luteal: { start: 16, end: cycleLength, color: '#74A65D', name: 'Luteal' }
+    menstrual: { start: 1, end: periodLength, color: '#F2762E', name: '휴식 기간' },
+    follicular: { start: periodLength + 1, end: 13, color: '#F2AF5C', name: '에너지 업 기간' },
+    ovulation: { start: 14, end: 15, color: '#F2CA50', name: '스파크 기간' },
+    luteal: { start: 16, end: cycleLength, color: '#74A65D', name: '컨트롤 기간' }
   };
   
   // Determine current phase

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { CalendarView } from './components/CalendarView';
 import { SetupScreen } from './components/SetupScreen';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { Toaster } from "sonner@2.0.3";
+import { Toaster } from "sonner";
 import { getUserData } from './utils/storage';
 
 export default function App() {

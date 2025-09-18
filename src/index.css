@@ -1213,10 +1213,6 @@
     color: var(--muted-foreground);
   }
 
-  .last\:border-r-0:last-child {
-    border-right-style: var(--tw-border-style);
-    border-right-width: 0;
-  }
 
   @media (hover: hover) {
     .hover\:scale-105:hover {
