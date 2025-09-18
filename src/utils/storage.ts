@@ -1,6 +1,6 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
-interface UserData {
+export interface UserData {
   id: number;
   lastPeriodDate: string;
   cycleLength: number;

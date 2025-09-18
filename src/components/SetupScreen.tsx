@@ -26,8 +26,8 @@ export function SetupScreen({ onNavigate }: SetupScreenProps) {
       return;
     }
 
-    const cycle = parseInt(cycleLength);
-    const period = parseInt(periodLength);
+  const cycle = parseInt(cycleLength, 10);
+  const period = parseInt(periodLength, 10);
 
     if (cycle < 21 || cycle > 35) {
       toast.error('Cycle length should be between 21-35 days');

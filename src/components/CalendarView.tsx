@@ -1,8 +1,9 @@
-import { Calendar, Settings, ChevronLeft, ChevronRight, X, Star, Cloud, Heart, Sparkles, RotateCcw } from 'lucide-react';
+import { Calendar, Settings, ChevronLeft, ChevronRight, X, RotateCcw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getUserData, calculatePhases, clearUserData } from '../utils/storage';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import { formatKoreanDateYYYYMMDD } from '../utils/date';
 
 interface CalendarViewProps {
   onDayClick: (day: number) => void;
@@ -147,12 +148,8 @@ export function CalendarView({ onDayClick, onNavigate }: CalendarViewProps) {
   // Format selected day into 'YYYY년 M월 D일 요일'
   const formatSelectedDate = (day: number) => {
     const date = new Date(today.getFullYear(), currentMonthIndex + currentMonth, day);
-    const y = date.getFullYear();
-    const m = date.getMonth() + 1;
-    const d = date.getDate();
     const weekdays = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-    const w = weekdays[date.getDay()];
-    return `${y}년 ${m}월 ${d}일 ${w}`;
+    return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${weekdays[date.getDay()]}`;
   };
 
   // Get phase details for selected day
@@ -235,7 +232,7 @@ export function CalendarView({ onDayClick, onNavigate }: CalendarViewProps) {
   const isToday = (day: number) => {
     return currentMonth === 0 && day === currentDate;
   };
- console.log('cycleInfo',cycleInfo)
+ 
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto">
@@ -268,9 +265,7 @@ export function CalendarView({ onDayClick, onNavigate }: CalendarViewProps) {
             const meta = getPhaseMeta(cycleInfo.currentPhase);
             return (
               <div className="text-center space-y-1">
-                <p className="text-2xl font-black text-foreground">
-                  오늘은 {today.getFullYear()}년 {String(today.getMonth() + 1).padStart(2, '0')}월 {String(today.getDate()).padStart(2, '0')}일
-                </p>
+                <p className="text-2xl font-black text-foreground">{`오늘은 ${formatKoreanDateYYYYMMDD(today)}`}</p>
                 {meta.shortTip && (
                   <p className="text-sm font-medium text-muted-foreground">{meta.shortTip}</p>
                 )}
